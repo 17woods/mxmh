@@ -1,5 +1,6 @@
 import sqlite3
 import pandas
+from h_mh import hoursEffect
 from pathlib import Path
 
 
@@ -29,6 +30,10 @@ def createDB():
         );"""
     )
 
+    data = pandas.read_csv('mxmh_survey_results.csv')
+    data.to_sql('mxmh', dataConn, if_exists='append', index=False)
+    return
+
 
 def main():
     if not Path('data.db').exists():
@@ -36,12 +41,10 @@ def main():
 
     dbConn = sqlite3.connect('data.db')
     d = dbConn.cursor()
+
+    hoursEffect(d)
+
     
-    data = pandas.read_csv('mxmh_survey_results.csv')
-    data.to_sql('mxmh', dbConn, if_exists='append', index=False)
-
-
-
 
 if __name__ == "__main__":
     main()
