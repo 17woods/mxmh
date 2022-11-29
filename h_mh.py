@@ -1,35 +1,79 @@
 import sqlite3
 
+def avgBtw(d, sel, between, di='mxmh'):
+    selStr = ', '.join([f"AVG({e})" for e in sel])
+    
+    data = list(d.execute(
+        f"""SELECT {selStr}
+        FROM {di}
+        WHERE {between};
+        """).fetchall()[0])
+
+    data = list(map(lambda fl: round(fl, 2), data))
+
+    keyList = [f"avg({e})" for e in sel]
+
+    return dict(zip(keyList, data))
+
+
+def avBd(d):
+    def roundList(li):
+        return [round(fl, 3) for fl in li]
+
+    listenR0 = d.execute(
+        """SELECT AVG(anxiety), AVG(depression), AVG(insomnia), AVG(ocd)
+        FROM mxmh
+        WHERE daily < 1;
+        """).fetchall()
+    listenR1 = d.execute(
+        """SELECT AVG(anxiety), AVG(depression), AVG(insomnia), AVG(ocd)
+        FROM mxmh
+        WHERE daily BETWEEN 1 AND 1.99;
+        """).fetchall()
+    listenR2 = d.execute(
+        """SELECT AVG(anxiety), AVG(depression), AVG(insomnia), AVG(ocd)
+        FROM mxmh
+        WHERE daily BETWEEN 2 AND 3.99;
+        """).fetchall()
+    listenR3 = d.execute(
+        """SELECT AVG(anxiety), AVG(depression), AVG(insomnia), AVG(ocd)
+        FROM mxmh
+        WHERE daily BETWEEN 4 AND 7.99;
+        """).fetchall()
+    listenR4 = d.execute(
+        """SELECT AVG(anxiety), AVG(depression), AVG(insomnia), AVG(ocd)
+        FROM mxmh
+        WHERE daily > 8;
+        """).fetchall()
+
+    keyList = ['avgAnx', 'avgDep', 'avgIns', 'avgOCD']
+
+    listenR0 = roundList(list(listenR0[0]))
+    listenR1 = roundList(list(listenR1[0]))
+    listenR2 = roundList(list(listenR2[0]))
+    listenR3 = roundList(list(listenR3[0]))
+    listenR4 = roundList(list(listenR4[0]))
+
+    finR0 = dict(zip(keyList, listenR0))
+    finR1 = dict(zip(keyList, listenR1))
+    finR2 = dict(zip(keyList, listenR2))
+    finR3 = dict(zip(keyList, listenR3))
+    finR4 = dict(zip(keyList, listenR4))
+
+    return {
+        '<1': finR0,
+        '[1, 2)': finR1,
+        '[2, 4)': finR2,
+        '[4, 8)': finR3,
+        '8+': finR4
+    }
+
+
 def hoursEffect(d):
-    m = d.execute(
-        'SELECT daily,anxiety,depression,insomnia,ocd FROM mxmh').fetchall()
-    print(len(m))
+    averageByDaily = avBd(d)
+    
+    luAttr = 'avgOCD'
 
-    # Ranges
-    # >1
-    # 1-2
-    # 2.5-4
-    # 4.5-7.5
-    # 8+
-    dicts = {}
-    for n in range(0, 5):
-        dicName = f"listenR{n}"
-        dicts[dicName] = {
-        'avg_tim': 0.0,
-        'avg_anx': 0.0,
-        'avg_dep': 0.0,
-        'avg_ins': 0.0,
-        'avg_ocd': 0.0,
-        'avg_tmh': 0.0
-        }
-        print(dicName, dicts[dicName])
+    for k in averageByDaily:
+        print(f"{k} -> {averageByDaily[k][luAttr]}")
 
-    # data -> (daily, anx, dep, ins, ocd)
-    dicts['listenR0']['data'] = [tu for tu in m if tu[0] < 1]
-    dicts['listenR1']['data'] = [tu for tu in m if 1 < tu[0] <= 2]
-    dicts['listenR2']['data'] = [tu for tu in m if 2 < tu[0] <= 4]
-    dicts['listenR3']['data'] = [tu for tu in m if 4 < tu[0] <= 7.9]
-    dicts['listenR4']['data'] = [tu for tu in m if 8 < tu[0]]
-
-    for di in dicts:
-        print(len(dicts[di]['data']))

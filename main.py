@@ -1,6 +1,7 @@
 import sqlite3
 import pandas
-from h_mh import hoursEffect
+from h_mh import hoursEffect, avgBtw
+from trends import trends
 from pathlib import Path
 
 
@@ -27,8 +28,7 @@ def createDB():
             depression int, insomnia int,
             ocd int, music_e text,
             permissions text
-        );"""
-    )
+        );""")
 
     data = pandas.read_csv('mxmh_survey_results.csv')
     data.to_sql('mxmh', dataConn, if_exists='append', index=False)
@@ -42,7 +42,31 @@ def main():
     dbConn = sqlite3.connect('data.db')
     d = dbConn.cursor()
 
-    hoursEffect(d)
+    LISTENRANGE = [(0.0, 0.99), (1.0, 1.99), (2.0, 3.99), (4.0, 7.99), (8.0, 24.0)]
+
+    want = ['anxiety', 'depression', 'ocd', 'insomnia']
+    where = 'daily'
+    w_is = [f'BETWEEN {x} AND {y}' for x, y in LISTENRANGE]
+
+    whereIs = [f'{where} {word}' for word in w_is]
+
+    dat_0_keys = [f'from {x} to {y}' for x, y in LISTENRANGE]
+    dat_0 = [avgBtw(d, want, whereWhat) for whereWhat in whereIs]
+
+    dat_0 = dict(zip(dat_0_keys, dat_0))
+
+    dat_0_trends = trends(dat_0)
+
+    gap = '        '
+
+    for k in dat_0_trends:
+        print(k)
+        for key, elem in dat_0_trends[k].items():
+            print(gap, key + ' hours per day:', elem)
+
+    
+
+
     
 
 if __name__ == "__main__":
