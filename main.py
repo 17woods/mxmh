@@ -43,7 +43,6 @@ def main():
     d = dbConn.cursor()
 
     hoursEffect(d)
-
     
 
 if __name__ == "__main__":
