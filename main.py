@@ -1,8 +1,8 @@
 import sqlite3
 import pandas
-from h_mh import hoursEffect, avgBtw
-from trends import trends
 from pathlib import Path
+from sql import avgBtw
+from trends import trends
 
 
 def createDB():
@@ -66,8 +66,6 @@ def main():
 
     
 
-
-    
 
 if __name__ == "__main__":
     main()
