@@ -1,7 +1,7 @@
 import sqlite3
 import pandas
 from pathlib import Path
-from sql import avgBtw
+from sql import avgBtw, qwe
 from trends import trends
 
 
@@ -44,14 +44,14 @@ def main():
 
     LISTENRANGE = [(0.0, 0.99), (1.0, 1.99), (2.0, 3.99), (4.0, 7.99), (8.0, 24.0)]
 
-    want = ['anxiety', 'depression', 'ocd', 'insomnia']
+    mHDs = ['anxiety', 'depression', 'ocd', 'insomnia']
     where = 'daily'
     w_is = [f'BETWEEN {x} AND {y}' for x, y in LISTENRANGE]
 
     whereIs = [f'{where} {word}' for word in w_is]
 
     dat_0_keys = [f'from {x} to {y}' for x, y in LISTENRANGE]
-    dat_0 = [avgBtw(d, want, whereWhat) for whereWhat in whereIs]
+    dat_0 = [avgBtw(d, mHDs, whereWhat) for whereWhat in whereIs]
 
     dat_0 = dict(zip(dat_0_keys, dat_0))
 
@@ -64,7 +64,15 @@ def main():
         for key, elem in dat_0_trends[k].items():
             print(gap, key + ' hours per day:', elem)
 
-    
+
+
+    SCALERANGE = [(0, 1, 2, 3), (4, 5), (6, 7), (8, 9), (10)]
+
+    where = ''
+    w_is = [f'']
+
+    qwer = qwe(d, mHDs)
+    print(qwer)
 
 
 if __name__ == "__main__":
